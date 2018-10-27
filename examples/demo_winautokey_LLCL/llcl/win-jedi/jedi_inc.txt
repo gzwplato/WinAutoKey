@@ -1,0 +1,26 @@
+uses
+  JwaWinBase, JwaWinGDI, JwaWinNT, JwaWinType;
+  
+JwaWinBase
+uses
+  {$IFDEF USE_DELPHI_TYPES}
+  Windows,
+  {$ENDIF USE_DELPHI_TYPES}
+  JwaNtStatus, JwaWinNT, JwaWinType;
+
+JwaWinGDI
+uses
+  JwaWinNT, JwaWinType;
+  
+JwaWinNT
+{$IFNDEF JWA_OMIT_SECTIONS}
+unit JwaWinType;
+{$I jediapilib.inc}
+
+JwaWinType
+uses
+  {$IFDEF USE_DELPHI_TYPES}
+  Windows,
+  {$ENDIF USE_DELPHI_TYPES}
+  SysUtils; // TODO 
+ 

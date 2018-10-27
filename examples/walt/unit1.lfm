@@ -1,0 +1,49 @@
+object Form1: TForm1
+  Left = 351
+  Height = 425
+  Top = 250
+  Width = 611
+  Caption = 'Win Admin Lauch Tool (WALT)'
+  ClientHeight = 425
+  ClientWidth = 611
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
+  Visible = False
+  object btnLaunch: TButton
+    Left = 472
+    Height = 22
+    Top = 384
+    Width = 57
+    Caption = 'Launch'
+    OnClick = btnLaunchClick
+    TabOrder = 0
+  end
+  object ListBox: TListBox
+    Left = 8
+    Height = 363
+    Top = 8
+    Width = 592
+    Color = clBlack
+    Font.CharSet = ANSI_CHARSET
+    Font.Color = clWhite
+    Font.Height = -13
+    Font.Name = 'Segoe UI'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ItemHeight = 0
+    OnDblClick = ListBoxDblClick
+    OnKeyPress = ListBoxKeyPress
+    ParentFont = False
+    TabOrder = 1
+  end
+  object btnCancel: TButton
+    Left = 543
+    Height = 22
+    Top = 384
+    Width = 57
+    Caption = 'Cancel'
+    OnClick = btnCancelClick
+    TabOrder = 2
+  end
+end

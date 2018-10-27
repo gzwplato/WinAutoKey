@@ -1,0 +1,20 @@
+Project, Options, Compiler Options, Paths, Other unit files (-Fu):
+..\..\sources
+
+Not supported with LLCL:
+------------------------
+
+TMemo
+	Memo.Append					Memo.Lines.Add
+	ScrollBars ssAut			ScrollBars ssVertical
+	Color clCream				clDefault
+
+UnicodeString
+	WinTitle:=TrimRight(UnicodeString(WBuf));				WinTitle:=WBuf;
+Variants
+DateTime						Format Time OK, Format DateTime NO.
+
+
+LLCL Error Messages
+--------------------
+Error ident?					Using an unsupported control setting (e.g. Memo ssAuto)Error 216 at 00000000			Using an unsupported unit
