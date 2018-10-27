@@ -8,7 +8,7 @@
 
 A freeware automation unit for Free Pascal and the Lazarus IDE on the Windows operating system.
 
-WinAutoKey is designed to be used with the Object-Pascal dialect of Free Pascal, and the Lazarus rapid-development IDE, versus the BASIC-like syntax of other popular automation tools.
+WinAutoKey is designed to be used with the Object-Pascal dialect of Free Pascal, and the Lazarus rapid-development IDE, versus the BASIC-like syntax and less-functional IDEs of other popular automation tools.
 
 With WinAutoKey you don't have to try and remember a second programming language - everything is written in Pascal!
 
