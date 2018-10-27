@@ -1,5 +1,5 @@
 ![Environment](https://img.shields.io/badge/Windows-XP,%20Vista,%207,%208,%2010-brightgreen.svg)
-[![Release](https://img.shields.io/github/release/jasc2v8/pUnits.svg)](https://github.com/jasc2v8/WinAutoKey/releases)
+[![Release](https://img.shields.io/github/release/jasc2v8/WinAutoKey.svg)](https://github.com/jasc2v8/WinAutoKey/releases)
 [![License](https://img.shields.io/badge/license--GPL-3.0-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 ![TotalDownloads](https://img.shields.io/github/downloads/jasc2v8/WinAutoKey/total.svg)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-red.svg)](https://www.paypal.me/JimDreherHome)
