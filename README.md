@@ -1,6 +1,6 @@
 ![Environment](https://img.shields.io/badge/Windows-XP,%20Vista,%207,%208,%2010-brightgreen.svg)
 [![Release](https://img.shields.io/github/release/jasc2v8/pUnits.svg)](https://github.com/jasc2v8/WinAutoKey/releases)
-[![License] (https://img.shields.io/badge/license-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
+[![License] (https://img.shields.io/badge/license-GPL-3.0-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 ![TotalDownloads](https://img.shields.io/github/downloads/jasc2v8/WinAutoKey/total.svg)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-red.svg)](https://www.paypal.me/JimDreherHome)
 
@@ -12,7 +12,7 @@ WinAutoKey is designed to be used with the Object-Pascal dialect of Free Pascal,
 
 With WinAutoKey you don't have to try and remember a second programming language - everything is written in Pascal!
 
-Design objectives:
+## Design objectives:
 
 1. No third party packages required - uses the standard FPC/Lazarus distribution.
 
