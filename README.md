@@ -34,7 +34,7 @@ Other automation tools, such as AutoIt and AutoHotKey, are fantastic tools with 
 
 2. Note the use of hCtl and hWin functions to search by window title, text, or class.
 
-3. Use tools such as Au3Info_x64.exe or WinSpy.exe to identify the window title, text, and class to search for.
+3. Use tools such as [Au3Info](https://www.autoitscript.com/site/autoit/downloads/) (download zip), or [WinSpy.exe](https://sourceforge.net/projects/winspyex/) to identify the window title, text, and class to search for.
 
 ## Not Supported, and not Planned to Support:
 
