@@ -1,33 +1,92 @@
-{ Windows Auto Key v1.0.0
+//todo:
 
-  ********** License and Copyrights **********
+//change mouse from _SendKeyApply to _SendKeyDown???  [ssShift} to VK_SHIFT
+//IsWindowHung?  SendTimeout?
 
-  Lazarus Component Library (LCL)
-  -------------------------------
-  MouseAndKeyInput (SendKey and Mouse code)
-  GNU General Public License
-  Copyright (C) 2008 Tom Gregorovic
+{ Windows Auto Key
 
-  JwaWinType, JwaWinUser (Win API)
-  GNU Lesser General Public License
-  Portions are Copyright (C) 1995-2001 Microsoft Corporation
-  Pascal code is Marcel van Brakel (brakelm att chello dott nl)
-  Portions are Copyright (C) 1999-2001 Marcel van Brakel. All Rights Reserved
-  Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)
+0.116 Add VK and math functions from LCLType, now WAK can be standalone in Uses - yes!
+0.115 Change WinWait functions from i<(Timeout*4) to i<=(Timeout*4)
+0.114 Change ControlClick add Button
+0.113 Add MouseGetPos
+0.112 Add JwaWinType, remove Windows
+0.111 Fix WinActive, SetForegroundWindow if not hiding or minimizing window
+0.110 Fix WinActivate, move isIconic to end, add SetForegroundWindow
+0.109 Fix WinActivate, if already active then exit
+0.108 Fix WinActivate, restore before attach thread
+0.107 Fix MsgBox, add Result
+0.106 Change WinActivate to restore window if iconic (minimized)
+0.105 Add MsgBox
+0.104 Fix hWinCallBack so MatchText works properly
+0.103 Fixed ControlFocus
+0.102 Fixed WinActivate
+0.101 Change WinSleep default=WAK.WinDelay
+0.100 Reset WAK delay defaults
+0.99 Changed Delay to MilliSeconds
+0.98 Removed DelayOverride in WinSleep(MilliSeconds)
+0.97 Changed Settings to WAK
+0.96 Removed DelayOverride for keyboard and mouse, kept in WinSleep, increased defaults
+0.95 is WinSleep DelayOverride=0 working?
+0.94 Change WinSleep DelayOverride: integer=-1
+0.93 Change WinWait back to seconds
+0.92 Add ControlClick
+0.91 Add ControlGetPos
+0.90 Cleanup some compiler errors by initialzing variables and using {H-}
+0.89 Change WinWait* to delay first, then loop
+0.88 Change WinGetText to EnumWindows, hWin works well
+0.87 Testing hWin
+0.86 Begin change hWin to EnumWindows - needs testing
+0.85 Fixed hCtl - works well now
+0.84 Change WinGetTextENUM to WinGetText, greatly simplified using gTextBuf
+0.83 Fixed WinGetTextENUM using Windows sd call - ouch!
+0.82 add WinGetTextENUM
+0.81 Before fixing WinGetText to enumchildwindows
+0.80 Finish hWin, hCtl.  Fixed WinSetState
+0.79 Decided to go with WinFunction(h) and hWnd(), added ControlGetHandle and GetText
+0.78 Begin to consider FindTitle: Variant, and ControlGetHandle
+0.77 Change .LastFound to .LastUsed and update many functions
+0.76 Change to winautokey_title_class_text, fix WinExist to WinExists
+0.75 Archive as winautokey_title_text, change to (Title, Class, Text)
+0.74 Add WinGetHandle - yeah!
+0.73 Add WinGetText
+0.72 Add _GetTag
+0.71 Change WinGetHandleNEW to WinGetHandle, added Buttons
+0.71 Change WinGetHandleNEW, reduce matches
+0.70 Change WinGetHandleNEW so it returns child handle
+0.69 WinGetHandleNEW tests OK
+0.68 Change to [PARAMS]
+0.67 Begin to add _ReadParams
+0.66 Document specs for Params Array of String [1..8]
+0.65 Change WinWait to use WinGetHandle
+0.64 Change WinWaitActive to use WinGetHandle
+0.63 Change WinWaitClose to use WinGetHandle
+0.62 Change WinWait to use WinGetHandle
+0.61 Change WinExist to use WinGetHandle
+0.60 Begin to add Settings.LastUsed, needs work
+0.59 Add 'ACTIVE' and 'LAST' to WinGetHandle
+0.58 Change WinExistNEW to WinGetHandle
+0.57 debug WinExistNEW
+0.56 Fixed WinClose
+0.55 Update Unit1
+0.54 Add Settings
+0.53 Verified to use Sleep() with Application.ProcessMessages
+0.52 Add Mouse functions and eliminate MouseAndKeyInput
+0.51 Changed GetKeyState, Fixed Send, add FWinDelay to Win functions,
+  fixed WinWait functions, changed Send(String) to add key delay, put delay back in Send
 
-  LCLType.pp  (VK key constants and math functions)
-  Modified LGPL
-  @author(Curtis White <cwhite@aracnet.com>)
-  @lastmod(17-Oct-1999)
+}
 
-  AutoHotKey (General inspiration and ideas from CPP source code hosted on Github)
-  GNU General Public License
-  Copyright 2003-2009 Chris Mallett (support@autohotkey.com)
+{ Design concepts
+  -Use function names from AutoIT and/or AutoHotKey
+  -Not a full implementation, for learning purposes and basic usage
+  -Use jwawinuser
+  -mouseandkeyinput not used, but could be added if needed
+  -UTF8 support
 
-  AutoIT (Replicated many of the function names, no source code used)
-  Author : Jonathan Bennett and the AutoIt Team
-  WWW : https://www.autoitscript.com/site/autoit/
-  Email : support at autoitscript dot com
+  Not Supported, and not Planned to Support:
+  - Title: REGEXPTITLE, REGEXPCLASS, X \ Y \ W \ H, INSTANCE
+  - Control: ClassNN
+  - TextMatchMode: Fast (only match certain controls, exclude edit controls)
 
 }
 
@@ -37,12 +96,17 @@ unit winautokey;
 
 interface
 
+{Ctrl-Shift-C to add interface template to implementation}
+
 uses
   Classes, SysUtils, Forms,
+  {Windows,}  //not used, use Jwa units
+  JwaWinType, JwaWinUser, //SendInput
+  {MouseAndKeyInput,} //not used but can be optionally added
+  LCLType,  //VK keys
+  Variants,
   Controls, //TMouseButton = (mbLeft, mbRight, mbMiddle, mbExtra1, mbExtra2)
-  JwaWinType, JwaWinUser,	//SendInput
-  Variants;
-
+  DebugUnit;
 const
 
   { VK constants from LCLtype }
@@ -76,25 +140,23 @@ const
     VK_MBUTTON    = 4;
     VK_XBUTTON1   = 5;
     VK_XBUTTON2   = 6;
-    VK_BACK       = 8;  // "Backspace" key, Android BACK key is mapped to VK_ESCAPE
+    VK_BACK       = 8;  // The "Backspace" key, dont confuse with the
+                        // Android BACK key which is mapped to VK_ESCAPE
     VK_TAB        = 9;
     VK_CLEAR      = 12;
-    VK_RETURN     = 13; //x0D // The "Enter" key, also used for a keypad center press
-    //14, 15 SI/SO
-    VK_SHIFT      = 16; //x10 // See also VK_LSHIFT, VK_RSHIFT
-    VK_CONTROL    = 17; //x11// See also VK_LCONTROL, VK_RCONTROL
-    VK_MENU       = 18; //x12 // The ALT key, or "Option" in Mac OS X. See VK_LMENU, VK_RMENU
+    VK_RETURN     = 13; // The "Enter" key, also used for a keypad center press
+    VK_SHIFT      = 16; // See also VK_LSHIFT, VK_RSHIFT
+    VK_CONTROL    = 17; // See also VK_LCONTROL, VK_RCONTROL
+    VK_MENU       = 18; // The ALT key. Also called "Option" in Mac OS X. See also VK_LMENU, VK_RMENU
     VK_PAUSE      = 19; // Pause/Break key
     VK_CAPITAL    = 20; // CapsLock key
     VK_KANA       = 21;
     VK_HANGUL     = 21;
-    //22 SYNI
     VK_JUNJA      = 23;
     VK_FINAL      = 24;
     VK_HANJA      = 25;
     VK_KANJI      = 25;
-    //26 SUB
-    VK_ESCAPE     = 27; //x1B // Also used for the hardware Back key in Android
+    VK_ESCAPE     = 27; // Also used for the hardware Back key in Android
     VK_CONVERT    = 28;
     VK_NONCONVERT = 29;
     VK_ACCEPT     = 30;
@@ -401,6 +463,7 @@ var
   gCount: Integer=0;
   gTextBuf: String='';
 
+{ inteface LCLType }
 { interface common }
 
 procedure SetMatchCaseSensitive(const CaseSensitive: Boolean=False);
@@ -414,7 +477,7 @@ function MsgBox(const Msg: String; const Caption: String; const Flags: LongInt):
 
 { interface keyboard }
 
-function GetVKeyState(const VK: Word=0): Word;
+function GetKeyState(const VK: Integer): Integer;
 
 procedure SetKeyDelay(const MilliSeconds: integer=5);
 procedure SetMouseDelay(const MilliSeconds: integer=10);
@@ -440,9 +503,9 @@ procedure MouseUp(Button: TMouseButton; Shift: TShiftState);
 function hCtl(const h: HWND; const FindCtlText: string='';
   const FindCtlClass: string=''; const ID: integer=0): HWND;
 
-procedure ControlClick(h: HWND; const Button: TMouseButton=mbLeft;
-  const Shift: TShiftState=[];
+procedure ControlClick(h: HWND; const Button: TMouseButton=mbLeft; const Shift: TShiftState=[];
   const ScreenX: integer=-1; const ScreenY: Integer=-1; const RepeatCount: integer=1);
+
 
 function ControlFocus(const hControl: HWND): Boolean;
 
@@ -491,7 +554,34 @@ function WinWaitClose(const h: HWND; const Timeout: Integer=0): Boolean;
 function WinWait(const FindTitle: String=''; const FindText: String='';
   const FindClass: String=''; const Timeout: Integer=0): HWND;
 
+//wip
+
+function WinList(const FindTitle: String): TStringList;
+
+procedure WinListProc(AList: TStringList; const FindTitle: String);
+
 implementation
+
+{ implementation LCLType }
+
+function MathRound(AValue: ValReal): Int64; inline;
+begin
+  if AValue >= 0 then
+    Result := Trunc(AValue + 0.5)
+  else
+    Result := Trunc(AValue - 0.5);
+end;
+
+function MulDiv(nNumber, nNumerator, nDenominator: Integer): Integer;
+begin
+  if nDenominator = 0 then
+    Result := -1
+  else
+  if nNumerator = nDenominator then
+    Result := nNumber
+  else
+    Result := MathRound(int64(nNumber) * int64(nNumerator) / nDenominator);
+end;
 
 { implementation common }
 
@@ -580,13 +670,11 @@ begin
   if ssAlt in Shift then _SendKeyUp(VK_MENU);
 end;
 
-//Returns 1 if key down else 0.
-function GetVKeyState(const VK: Word=0): Word;
+// TODO: WinAsyncKeyState(Key: integer): boolean  and $80?
+//returns 1 if the key is down (or toggled on) or 0 if it is up (or toggled off).
+function GetKeyState(const VK: Integer): Integer;
 begin
-  if (JwaWinUser.GetKeyState(VK) and $80) = $80 then //avoid LCLType.GetKeyState
-    Result:=1
-  else
-    Result:=0;
+  Result:=GetAsyncKeyState(VK);
 end;
 
 //Send Ctrl/Shift/Alt and VK Key
@@ -650,6 +738,19 @@ begin
   WinSleep(WAK.MouseDelay);
 end;
 
+procedure _SendMouseInput(Flag: DWORD; X, Y: Integer);
+var
+  Input: TInput;
+begin
+  Input := Default(TInput);
+  Input.type_ := INPUT_MOUSE;
+  Input.mi.dx := MulDiv(X, 65535, Screen.Width - 1);  //horizontal
+  Input.mi.dy := MulDiv(Y, 65535, Screen.Height - 1); //vertical
+  Input.mi.dwFlags := Flag or MOUSEEVENTF_ABSOLUTE;
+  SendInput(1, @Input, SizeOf(Input));
+  WinSleep(WAK.MouseDelay);
+end;
+
 procedure _SendMouseDown(Button: TMouseButton);
 var
   Flag: DWORD;
@@ -676,6 +777,11 @@ begin
   _SendMouseInput(Flag);
 end;
 
+procedure _SendMouseMove(ScreenX, ScreenY: Integer);
+begin
+  _SendMouseInput(MOUSEEVENTF_MOVE, ScreenX, ScreenY);
+end;
+
 //Controls: TMouseButton = (mbLeft, mbRight, mbMiddle, mbExtra1, mbExtra2);
 //Classes: TShiftStateEnum = (ssShift, ssAlt, ssCtrl, etc...)
 procedure MouseClick(const Button: TMouseButton; const Shift: TShiftState=[];
@@ -685,12 +791,10 @@ var
   i: Integer;
 begin
   for i:=1 to RepeatCount do begin
-    try
-      MouseMove(ScreenX, ScreenY);
-      MouseDown(Button, Shift);
-    finally
-      MouseUp(Button, Shift);
-    end;
+    MouseMove(ScreenX, ScreenY);
+    MouseDown(Button, Shift);
+    MouseUp(Button, Shift);
+    WinSleep(WAK.MouseDelay);
   end;
 end;
 
@@ -709,8 +813,6 @@ procedure MouseGetPos(out ScreenX: Integer; out ScreenY: Integer);
 var
   pt: Point;
 begin
-  pt.x:=0;  //avoid compiler warning not initialized
-  pt.y:=0;
   GetCursorPos(pt);
   ScreenX:=pt.X;
   ScreenY:=pt.Y;
@@ -746,6 +848,9 @@ begin
     S2:=AnsiUpperCase(S2);
   end;
 
+  //Debugln('S1=',S1);
+  //Debugln('S2=',S2);
+
   if (MatchMode=mtStartsWith) and (Pos(S1, S2)=1) then
     Result:=True
   else if (MatchMode=mtSubstring) and (Pos(S1, S2)>0) then
@@ -777,18 +882,31 @@ begin
     cid:=GetDlgCtrlID(h);
     if (cid<>0) and (cid=Ctl^.FindID) then MatchID:=True;
 
+    {if MatchID then begin
+      Debugln('cid=', cid);
+      Debugln('ControlID=', Ctl^.FindControlID);
+      Debugln('MatchID=', MatchID);
+    end;}
+
     GetClassNameW(h, LPWSTR(WBuf), MAX_PATH);
-    CtlClassName:={%H-}{%H-}TrimRight(UnicodeString(WBuf));
+    CtlClassName:=TrimRight(UnicodeString(WBuf));
     MatchClass:=_DoMatch(WAK.TitleMatchMode, Ctl^.FindClass, CtlClassName);
 
+    //if CtlClassName<>'' then Debugln('CtlClassName=', CtlClassName);
+    //if Ctl^.FindClassName<>'' then Debugln('Ctl^.FindClassName=', Ctl^.FindClassName);
+
     SendMessageW(h, WM_GETTEXT, MAX_PATH, {%H-}LPARAM(@WBuf));
-    CtlText:={%H-}TrimRight(UnicodeString(WBuf));
+    CtlText:=TrimRight(UnicodeString(WBuf));
     MatchText:=_DoMatch(WAK.TextMatchMode, Ctl^.FindText, CtlText);
+
+    //if CtlText<>'' then Debugln('CtlText=', CtlText);
+    //if Ctl^.FindText<>'' then Debugln('Ctl^.FindText=', Ctl^.FindText);
 
     if MatchID or
       (MatchClass and MatchText) or
       (MatchClass and (Ctl^.FindText='')) or
       (MatchText and (Ctl^.FindClass='')) then begin
+        //Debugln('MatchID exit=', MatchID);
         Ctl^.Handle:=h;
         Ctl^.IsMatch:=True;
         Result:=False;
@@ -802,6 +920,7 @@ end;
 function hCtl(const h: HWND; const FindCtlText: string='';
   const FindCtlClass: string=''; const ID: integer=0): HWND;
 var
+  //Ctl: ThCtl;
   Ctl: ThWin;
 begin
 
@@ -819,6 +938,7 @@ begin
   end;
 
   if  Ctl.IsMatch then begin
+    //Debugln('Ctl.Handle=', IntToHex(Ctl.Handle,4));
     Result:=Ctl.Handle;
   end;
 
@@ -827,6 +947,7 @@ end;
 procedure ControlClick(h: HWND; const Button: TMouseButton=mbLeft; const Shift: TShiftState=[];
   const ScreenX: integer=-1; const ScreenY: Integer=-1; const RepeatCount: integer=1);
 var
+  i: integer;
   r: TRECT;
   AxisX, AxisY: integer;
 begin
@@ -843,9 +964,7 @@ begin
   else
     AxisY:=ScreenY;
 
-  MouseClick(Button,Shift,AxisX, AxisY, RepeatCount);
-  WinSleep(WAK.MouseDelay);
-
+  MouseClick(Button,[],AxisX, AxisY, RepeatCount);
 end;
 
 function ControlFocus(const hControl: HWND): Boolean;
@@ -900,7 +1019,6 @@ function ControlGetPos(const h: HWND): TRect;
 var
   r: TRect;
 begin
-  r.Empty;
   if GetWindowRect(h, r) then
     Result:=r
   else
@@ -914,7 +1032,7 @@ begin
   Result:='';
   if h=0 then Exit;
   SendMessageW(h, WM_GETTEXT, MAX_PATH, {%H-}LPARAM(@WBuf));
-  Result:={%H-}TrimRight(UnicodeString(WBuf));
+  Result:=TrimRight(UnicodeString(WBuf));
 end;
 
 function hWinCallBack(h: HWND; lp: LPARAM): LongBool; stdcall;
@@ -940,13 +1058,13 @@ begin
 
     if Win^.FindTitle<>'' then begin
       GetWindowTextW(h, LPWSTR(WBuf), MAX_PATH);
-      WinTitle:={%H-}TrimRight(UnicodeString(WBuf));
+      WinTitle:=TrimRight(UnicodeString(WBuf));
       MatchTitle:=_DoMatch(WAK.TitleMatchMode, Win^.FindTitle, WinTitle);
     end;
 
     if Win^.FindClass<>'' then begin
       GetClassNameW(h, LPWSTR(WBuf), MAX_PATH);
-      WinClass:={%H-}TrimRight(UnicodeString(WBuf));
+      WinClass:=TrimRight(UnicodeString(WBuf));
       MatchClass:=_DoMatch(WAK.TitleMatchMode, Win^.FindClass, WinClass);
     end;
 
@@ -1008,9 +1126,12 @@ begin
   Win.FindClass:=FindClass;
   Win.IsMatch:=False;
 
+ // Debugln('Findtitle='+Win.FindTitle);
+
   EnumWindows(@hWinCallBack, {%H-}LPARAM(@Win));
 
   if  Win.IsMatch then begin
+    //Debugln('Ctl.Handle=', IntToHex(Ctl.Handle,4));
     WAK.LastUsed:=Win.Handle;
     Result:=Win.Handle;
   end;
@@ -1019,7 +1140,9 @@ end;
 
 function MsgBox(const Msg: String; const Caption: String; const Flags: LongInt): Integer;
 begin
+
   Result:=Application.MessageBox(PChar(Msg), PChar(Caption), Flags);
+
 end;
 
 function WinActivate(const h: HWND): Boolean;
@@ -1100,7 +1223,7 @@ var
 begin
   WBuf:=''; //avoid compiler warnings
   GetClassNameW(h, LPWSTR(WBuf), MAX_PATH);
-  Result:={%H-}TrimRight(UnicodeString(WBuf));
+  Result:=UnicodeString(WBuf);
 end;
 
 function EnumGetTextCallBack(hc: HWND; lp: LPARAM): LongBool; stdcall;
@@ -1114,7 +1237,7 @@ begin
   //Win^.FindText:='';  //do not clear the text buffer, we want to append every pass
   if IsWindowVisible(hc) then begin
     SendMessageW(hc, WM_GETTEXT, MAX_PATH, {%H-}LPARAM(@WBuf));
-    Text:={%H-}TrimRight(UnicodeString(WBuf));
+    Text:=TrimRight(UnicodeString(WBuf));
     if Text<>'' then begin
       if Length(Text)+Length(TextBuf)<$FFFF then
         Win^.FindText:=Win^.FindText+Text+LineEnding;
@@ -1146,7 +1269,7 @@ begin
   if h=0 then exit;
   WBuf:=''; //avoid compiler warnings
   GetWindowTextW(h, LPWSTR(WBuf), MAX_PATH);
-  Result:={%H-}TrimRight(UnicodeString(WBuf));
+  Result:=TrimRight(UnicodeString(WBuf));
 end;
 
 //Get handle of window with matching Title [and/or Text [and/or Class]]
@@ -1257,11 +1380,14 @@ begin
 end;
 
 //Wait until window exists. If found then HWND, else 0 due to timeout.
+//Polls about every 100ms, Timeout in milliseconds e.g. 1e3=1000=1 second
+
 function WinWait(const FindTitle: String=''; const FindText: String='';
   const FindClass: String=''; const Timeout: Integer=0): HWND;
 var
   i: integer;
   h: HWND;
+
 begin
   i:=0;
   Result:=0;
@@ -1277,13 +1403,90 @@ begin
   end;
 end;
 
+function WinList(const FindTitle: String): TStringList;
+var
+  h: HWND;
+  Len: LongInt;
+  WBuf: WideString;
+  WinHandle, WinTitle: String;
+  MatchTitle: Boolean;
+begin
+  Result:=TStringList.Create;
+
+  h:=FindWindow(nil, nil);
+  while h<>0 do begin
+
+    if IsWindowVisible(h) then
+    begin
+
+      WinHandle:=IntToHex(h,4);
+
+      Len:=GetWindowTextLengthW(h);
+      SetLength(WBuf, Len);
+
+      GetWindowTextW(h, LPWSTR(WBuf), Len+1);
+      WinTitle:=WBuf;
+
+      MatchTitle:=_DoMatch(WAK.TitleMatchMode, FindTitle, WinTitle);
+
+      if MatchTitle then
+        Result.Add(Winhandle+': '+WinTitle);
+
+    end;
+
+    h:=GetWindow(h, GW_HWNDNEXT);
+
+  end;
+end;
+procedure WinListProc(AList: TStringList; const FindTitle: String);
+var
+  h: HWND;
+  Len: LongInt;
+  WBuf: WideString;
+  WinHandle, WinTitle: String;
+  MatchTitle: Boolean;
+begin
+
+  h:=FindWindow(nil, nil);
+  while h<>0 do begin
+
+    if IsWindowVisible(h) then
+    begin
+
+      WinHandle:=IntToHex(h,4);
+
+      Len:=GetWindowTextLengthW(h);
+      SetLength(WBuf, Len);
+      GetWindowTextW(h, LPWSTR(WBuf), Len+1);
+      WinTitle:=WBuf;
+
+      MatchTitle:=_DoMatch(WAK.TitleMatchMode, FindTitle, WinTitle);
+
+      if MatchTitle then
+        AList.Add(Winhandle+': '+WinTitle);
+
+    end;
+
+    h:=GetWindow(h, GW_HWNDNEXT);
+
+  end;
+end;
+
+
 initialization
   WAK.CaseSensitive:=False;  //True AutoIT, False AutoHotKey
-  WAK.KeyDelay:=10;          //5ms AutoIT, 10ms AutoHotKey
-  WAK.LastUsed:=0;           //Handle of most recently used by WinExist, WinActive, WinWait
-  WAK.MouseDelay:=10;        //10ms AutoIT, 10ms AutoHotKey
+  WAK.KeyDelay:=5;           //5ms AutoIT for older PC, 50ms for new and faster PC
+  WAK.LastUsed:=0;           //Most recently used by WinExist, WinActive, WinWait
+  WAK.MouseDelay:=10;        //10ms AutoIT
   WAK.TitleMatchMode:=1;     //mtStartsWith=1,mtSubString=2,mtExact=3
   WAK.TextMatchMode:=2;      //mtStartsWith=1,mtSubString=2,mtExact=3
-  WAK.WinDelay:=100;         //100ms AutoIT, 100ms AutoHotKey
+  WAK.WinDelay:=100;         //100ms AutoIT for older PC, 200ms for new and faster PC
+  {AutoHotKey
+  g.WinDelay = 100;
+	g.ControlDelay = 20;
+	g.KeyDelay = 10;
+	g.MouseDelay = 10;
+  }
+
 end.
 

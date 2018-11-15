@@ -6,17 +6,11 @@
     <General>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="walt"/>
+      <Title Value="demo_walt"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
       <Icon Value="0"/>
     </General>
-    <VersionInfo>
-      <UseVersionInfo Value="True"/>
-      <MajorVersionNr Value="1"/>
-      <RevisionNr Value="1"/>
-      <StringTable FileDescription="Windows Admin Launch Tool" InternalName="Windows Admin Launch Tool" LegalCopyright="Copyright (C) 2018 by James O. Dreher" ProductName="Windows Admin Launch Tool"/>
-    </VersionInfo>
     <BuildModes Count="5">
       <Item1 Name="Default" Default="True"/>
       <Item2 Name="Debug">
@@ -24,7 +18,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="walt"/>
+            <Filename Value="demo_walt"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -68,7 +62,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="walt"/>
+            <Filename Value="demo_walt"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -103,7 +97,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="walt"/>
+            <Filename Value="demo_walt"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -150,7 +144,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="walt"/>
+            <Filename Value="demo_walt"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -185,7 +179,7 @@
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
-      <DestinationDirectory Value="D:\DEV\Work\pascal\~Archive\demo_walt_0.4"/>
+      <DestinationDirectory Value="D:\DEV\Work\pascal\~Archive\demoe_walt_0.1"/>
     </PublishOptions>
     <RunParams>
       <local>
@@ -199,7 +193,7 @@
     </RequiredPackages>
     <Units Count="2">
       <Unit0>
-        <Filename Value="walt.lpr"/>
+        <Filename Value="demo_walt.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
@@ -216,7 +210,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="walt"/>
+      <Filename Value="demo_walt"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>

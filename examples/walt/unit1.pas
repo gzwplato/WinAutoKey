@@ -1,5 +1,7 @@
 { Windows Admin Launch Tool (WALT) by jasc2v8 at yahoo dot com
 
+walt v1.1.0
+
 https://www.winhelponline.com/blog/shell-commands-to-access-the-special-folders/
 
 This is free and unencumbered software released into the public domain.
@@ -56,8 +58,6 @@ type
   public
 
   end;
-const
-  WALT_ITEMS='walt_items.txt';
 
 var
   Form1: TForm1;
@@ -125,11 +125,13 @@ var
   i: integer;
 begin
 
-  //ok hw:=hWin('Program Manager');
-
   hTray:=hWin('','','Shell_TrayWnd');
   hStart:=hCtl(hTray,'Start','Start');
-  hSearch:=hCtl(hTray,'Type here to search','TrayButton', 4103);
+
+  //if search button then hSearch:=hCtl(hTray,'Type here to search','TrayButton', 4103);
+  //if search editbox then hSearch:=hCtl(hTray,'Type here to search','Static', 4101);
+  //therefore, just search for text
+  hSearch:=hCtl(hTray,'Type here to search');
 
   if (hTray=0) or (hStart=0) or (hSearch=0) then begin
     ShowMessage(Format('Error getting control handles.'+LE+
@@ -137,8 +139,6 @@ begin
   end;
 
   i:=ListBox.ItemIndex;
-
-  //SetKeyDelay(WAK.KeyDelay*2); //debug
 
   if i>=0 then begin
     s:=ListBox.Items[i];
@@ -175,21 +175,17 @@ var
 begin
   btnLaunch.SetFocus;
 
-  if FileExists(WALT_ITEMS) then begin
-    ListBox.Items.LoadFromFile(WALT_ITEMS);
-    for i:=ListBox.Count-1 downto 0 do begin
+  for i:=ListBox.Count-1 downto 0 do begin
 
-      j:=Pos('//',ListBox.Items[i]);
-      if j<>0 then begin
-        ListBox.Items.Delete(i);
-      end;
-
-      j:=Pos('=',ListBox.Items[i]);
-      if j<>0 then
-        ListBox.Items[i]:='%'+Copy(ListBox.Items[i],1,j-1)+'%';
+    j:=Pos('//',ListBox.Items[i]);
+    if j<>0 then begin
+      ListBox.Items.Delete(i);
     end;
-  end else
-    ListBox.Items.Add('No items to load from: '+WALT_ITEMS);
+
+    j:=Pos('=',ListBox.Items[i]);
+    if j<>0 then
+      ListBox.Items[i]:='%'+Copy(ListBox.Items[i],1,j-1)+'%';
+  end;
 
 end;
 
